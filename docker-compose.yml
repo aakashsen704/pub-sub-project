@@ -1,0 +1,38 @@
+services:
+  broker:
+    build: .
+    image: pubsub-app
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/')"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  subscriber-a:
+    image: pubsub-app
+    command: ["python", "-m", "subscribers.subscriber", "--id", "student_A", "--port", "5001",
+              "--host", "0.0.0.0", "--public-host", "subscriber-a",
+              "--register", "--broker-url", "http://broker:8000"]
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  subscriber-b:
+    image: pubsub-app
+    command: ["python", "-m", "subscribers.subscriber", "--id", "student_B", "--port", "5002",
+              "--host", "0.0.0.0", "--public-host", "subscriber-b",
+              "--register", "--broker-url", "http://broker:8000"]
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  subscriber-c:
+    image: pubsub-app
+    command: ["python", "-m", "subscribers.subscriber", "--id", "student_C", "--port", "5003",
+              "--host", "0.0.0.0", "--public-host", "subscriber-c",
+              "--register", "--broker-url", "http://broker:8000"]
+    depends_on:
+      broker:
+        condition: service_healthy

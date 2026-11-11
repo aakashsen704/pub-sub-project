@@ -106,6 +106,9 @@ def parse_args(argv=None) -> argparse.Namespace:
                         help="subscriber ID, e.g. student_A")
     parser.add_argument("--port", required=True, type=int, help="port to listen on")
     parser.add_argument("--host", default="127.0.0.1", help="interface to bind (default 127.0.0.1)")
+    parser.add_argument("--public-host", default=None,
+                        help="hostname the broker should use to reach this subscriber "
+                             "(needed in Docker, e.g. subscriber-a); default: derived from --host")
     parser.add_argument("--register", action="store_true",
                         help="automatically register with the broker at startup")
     parser.add_argument("--broker-url", default="http://localhost:8000",
@@ -117,7 +120,7 @@ def parse_args(argv=None) -> argparse.Namespace:
 
 def main(argv=None) -> None:
     args = parse_args(argv)
-    public_host = "127.0.0.1" if args.host in ("0.0.0.0", "") else args.host
+    public_host = args.public_host or ("127.0.0.1" if args.host in ("0.0.0.0", "") else args.host)
     callback_url = f"http://{public_host}:{args.port}/notify"
 
     app = create_app(

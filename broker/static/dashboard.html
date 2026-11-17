@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pub-Sub Dashboard</title>
+<style>
+  :root {
+    --page: #9CAE95;      /* main background (sage green)        */
+    --card: #EBDFC6;      /* raised surfaces, a lighter cream   */
+    --card-2: #F4ECD9;    /* inputs and small chips             */
+    --ink: #111111;       /* all text                           */
+    --muted: #3B3426;
+    --line: rgba(17, 17, 17, 0.16);
+    --rust: #B83A2D;      /* accent, not pure red               */
+    --rust-d: #8F2A20;
+    --rust-tint: #E7C0B2;
+    --green: #4E6851;     /* accent 2                           */
+    --green-tint: #B8C8B1;
+    --sage: #9CAE95;      /* hero surface (tint of the green)   */
+    --on-fill: #F6EEDC;   /* text on rust / green fills         */
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; font-size: 15px;
+         line-height: 1.45; color: var(--ink); background-color: var(--page); }
+  a { color: var(--ink); }
+
+  /* ---------- top bar ---------- */
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+  .nav { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 0; flex-wrap: wrap; }
+  .brand { display: flex; align-items: baseline; gap: 12px; }
+  .brand b { font-family: var(--serif); font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+  .brand span { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .nav-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .nav a.link { text-decoration: none; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--ink); padding-bottom: 1px; }
+  .pill { display: inline-flex; align-items: center; gap: 9px; padding: 7px 14px; border-radius: 999px; font-size: 13px;
+          font-weight: 600; background: var(--card-2); border: 1px solid var(--line); color: var(--ink); }
+  .pill::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(78, 104, 81, 0.25); }
+  .pill.off::before { background: var(--rust); box-shadow: 0 0 0 3px rgba(184, 58, 45, 0.25); }
+
+  .nav { align-items: flex-end; padding: 26px 0 10px; }
+  .brand-block .title { font-family: var(--serif); font-weight: 700; font-size: clamp(34px, 5vw, 54px); line-height: 1.05;
+                        letter-spacing: -0.025em; margin: 8px 0 8px; }
+  .brand-block .title.hl { display: table; }
+  .brand-block .tagline { font-size: 15px; max-width: 52ch; color: var(--muted); }
+  .nav-right { padding-bottom: 6px; }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; overflow: hidden; display: grid; grid-template-columns: 1.25fr 1fr; gap: 28px; align-items: center;
+          border-radius: 30px; padding: 46px; margin: 4px 0 0;
+          background: radial-gradient(120% 90% at 100% 0%, rgba(78, 104, 81, 0.55), transparent 60%),
+                      radial-gradient(80% 80% at 0% 100%, rgba(244, 236, 217, 0.35), transparent 60%), var(--sage);
+          box-shadow: 0 22px 40px -22px rgba(40, 60, 45, 0.6); }
+  .hero::before { content: ""; position: absolute; right: -90px; bottom: -130px; width: 360px; height: 360px; border-radius: 50%;
+                  border: 2px solid rgba(17, 17, 17, 0.12); pointer-events: none; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; color: var(--ink); }
+  .hero h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(38px, 5.2vw, 62px); line-height: 1.02;
+             letter-spacing: -0.025em; margin: 14px 0 16px; }
+  .hl { padding-bottom: 8px; background: no-repeat left bottom / 100% 12px
+        url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C 30 2, 60 11, 100 6 S 170 3, 198 7' fill='none' stroke='%23B83A2D' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E"); }
+  .hero p { max-width: 46ch; font-size: 17px; margin: 0 0 22px; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero-meta { margin-top: 20px; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+  .hero-card { position: relative; background: rgba(244, 236, 217, 0.86); backdrop-filter: blur(6px); border: 1px solid rgba(17, 17, 17, 0.12);
+               border-radius: 22px; padding: 18px 18px 14px; box-shadow: 0 18px 34px -18px rgba(30, 40, 30, 0.6); }
+  .hero-card h4 { margin: 0 0 8px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; }
+  .legend { display: flex; gap: 16px; font-size: 12px; margin-top: 6px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 18px; height: 4px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
+  .legend .r { background: var(--rust); } .legend .g { background: var(--green); }
+
+  /* ---------- layout + cards ---------- */
+  main { max-width: 1200px; margin: 0 auto; padding: 22px 20px 6px; display: grid; gap: 22px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 860px) { .row, .hero { grid-template-columns: 1fr; } .hero { padding: 28px; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 24px;
+          box-shadow: 0 14px 30px -16px rgba(70, 45, 20, 0.35); scroll-margin-top: 16px; }
+  .card h2 { margin: 0 0 16px; font-family: var(--serif); font-size: 25px; font-weight: 600; letter-spacing: -0.01em;
+             display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .card h2 .muted { font-family: "Segoe UI", system-ui, sans-serif; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
+  .muted { color: var(--muted); font-size: 13px; }
+
+  /* ---------- subscribers ---------- */
+  .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; background: var(--rust); flex: none; box-shadow: 0 0 0 3px rgba(184, 58, 45, 0.22); }
+  .dot.on { background: var(--green); box-shadow: 0 0 0 3px rgba(78, 104, 81, 0.28); }
+  .sub-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px dashed rgba(17, 17, 17, 0.25); }
+  .sub-row:last-child { border-bottom: none; }
+  .sub-row .id { font-family: var(--serif); font-weight: 600; font-size: 18px; }
+  .sub-row .url { color: var(--muted); font-size: 12px; word-break: break-all; }
+  .sub-row .grow { flex: 1; min-width: 0; }
+
+  /* ---------- forms ---------- */
+  label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin: 16px 0 7px; }
+  input[type=text] { width: 100%; padding: 11px 15px; border: 1px solid rgba(17, 17, 17, 0.24); border-radius: 14px;
+                     background: var(--card-2); color: var(--ink); font: inherit; font-size: 14px; }
+  input[type=text]::placeholder { color: rgba(17, 17, 17, 0.5); }
+  input[type=text]:focus, button:focus-visible, .btn:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; }
+  button, .btn { display: inline-block; cursor: pointer; font: inherit; font-size: 14px; font-weight: 600; text-decoration: none; text-align: center;
+                 border: 1px solid var(--ink); background: transparent; color: var(--ink); padding: 10px 20px; border-radius: 999px;
+                 transition: background .15s, color .15s, transform .15s, box-shadow .15s; }
+  button:hover, .btn:hover { background: var(--card-2); transform: translateY(-1px); }
+  button:active, .btn:active { transform: translateY(0); }
+  button.primary, .btn.primary { background: var(--rust); border-color: var(--rust); color: var(--on-fill); box-shadow: 0 8px 16px -8px rgba(143, 42, 32, 0.8); }
+  button.primary:hover, .btn.primary:hover { background: var(--rust-d); border-color: var(--rust-d); }
+  button.small { padding: 6px 14px; font-size: 12px; }
+  button.danger:hover { color: var(--rust-d); border-color: var(--rust); background: var(--rust-tint); }
+  .modes { display: flex; gap: 8px; flex-wrap: wrap; }
+  .modes button.active { background: var(--green); border-color: var(--green); color: var(--on-fill); }
+  .mode-help { font-size: 13px; color: var(--muted); margin-top: 8px; min-height: 18px; }
+  .recipients { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .recipients label { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0;
+                      text-transform: none; border: 1px solid rgba(17, 17, 17, 0.3); background: var(--card-2); padding: 8px 14px; border-radius: 999px; cursor: pointer; }
+  .recipients input { accent-color: var(--green); }
+  .recipients.disabled { opacity: 0.4; pointer-events: none; }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+  /* ---------- delivery report ---------- */
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { padding: 8px 16px; border-radius: 16px; background: var(--card-2); border: 1px solid var(--line); font-size: 13px; }
+  .stat b { font-family: var(--serif); font-size: 21px; margin-right: 2px; }
+  .res { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-radius: 14px; margin-top: 8px; border-left: 6px solid; }
+  .res.success { background: var(--green-tint); border-color: var(--green); }
+  .res.failed { background: var(--rust-tint); border-color: var(--rust); }
+  .res .badge { font-weight: 800; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .res.success .badge { color: #2E4A36; }
+  .res.failed .badge { color: var(--rust-d); }
+  .note { padding: 10px 14px; border-radius: 12px; background: #E3D3AE; border-left: 6px solid var(--rust); margin-top: 8px; font-size: 13px; }
+  .error-box { padding: 12px 14px; border-radius: 14px; background: var(--rust-tint); border: 1px solid var(--rust); font-size: 14px; }
+
+  /* ---------- inboxes ---------- */
+  .inboxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .inbox { border: 1px solid var(--line); border-radius: 20px; padding: 16px; background: rgba(220, 201, 169, 0.55); min-height: 130px; }
+  .inbox h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 19px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .inbox .state { margin-left: auto; font-family: "Segoe UI", system-ui, sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); }
+  .inbox.offline .state { color: var(--rust-d); }
+  .ev { background: var(--card-2); border: 1px solid var(--line); border-left: 5px solid var(--green); border-radius: 12px; padding: 9px 12px; margin-top: 9px; }
+  .ev .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .ev .msg { margin-top: 4px; font-weight: 600; word-break: break-word; }
+  .ev.new { animation: flash 2.5s ease-out; }
+  .tag { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 999px; background: var(--rust); color: var(--on-fill); text-transform: uppercase; }
+  @keyframes flash { 0% { background: #F1D98C; box-shadow: 0 0 0 3px var(--rust); } 100% { background: var(--card-2); box-shadow: none; } }
+  .empty { color: var(--muted); font-size: 14px; padding: 6px 0; }
+
+  #toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--on-fill);
+           padding: 11px 20px; border-radius: 999px; font-size: 14px; opacity: 0; transition: opacity .25s; pointer-events: none; max-width: 90%; }
+  #toast.show { opacity: 1; }
+  .foot { text-align: center; color: var(--muted); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; padding: 22px 0 38px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="nav">
+    <div class="brand-block">
+      <div class="eyebrow">Publish &middot; Subscribe &middot; Deliver</div>
+      <h1 class="title hl">Pub&middot;Sub Dashboard</h1>
+      <div class="tagline">Send one event to one subscriber, a chosen group, or everyone &mdash; then watch it arrive.</div>
+    </div>
+    <div class="nav-right">
+      <a class="link" href="/docs" target="_blank">API docs (Swagger)</a>
+      <span id="brokerPill" class="pill">Broker online</span>
+      <a class="btn primary" href="#publish">Send event</a>
+    </div>
+  </header>
+
+</div>
+
+<main>
+  <div class="row">
+    <!-- Subscribers -->
+    <section class="card" id="subs">
+      <h2>1. Subscribers <span class="muted" id="subCount"></span></h2>
+      <div id="subList"><div class="empty">No subscribers registered yet.</div></div>
+      <label for="newId">Register a subscriber</label>
+      <input type="text" id="newId" placeholder="subscriber id, e.g. student_A">
+      <input type="text" id="newUrl" placeholder="callback URL, e.g. http://localhost:5001/notify" style="margin-top:8px">
+      <div class="actions">
+        <button class="primary" id="addBtn">Register</button>
+        <button id="quickBtn" title="Registers student_A, student_B, student_C on ports 5001-5003">Quick add A, B, C (terminal setup)</button>
+      </div>
+    </section>
+
+    <!-- Publish -->
+    <section class="card" id="publish">
+      <h2>2. Publish an event</h2>
+      <div class="muted">Examples</div>
+      <div class="presets">
+        <button class="small" data-preset="unicast">Unicast example</button>
+        <button class="small" data-preset="multicast">Multicast example</button>
+        <button class="small" data-preset="broadcast">Broadcast example</button>
+      </div>
+      <label>Mode</label>
+      <div class="modes" id="modes">
+        <button data-mode="unicast">Unicast (one)</button>
+        <button data-mode="multicast">Multicast (selected)</button>
+        <button data-mode="broadcast" class="active">Broadcast (all)</button>
+      </div>
+      <div class="mode-help" id="modeHelp"></div>
+      <label>Recipients</label>
+      <div class="recipients" id="recipients"></div>
+      <label for="evType">Event type</label>
+      <input type="text" id="evType" value="general_announcement">
+      <label for="evMsg">Message</label>
+      <input type="text" id="evMsg" value="Tomorrow is a holiday for everyone.">
+      <div class="actions"><button class="primary" id="sendBtn">Send event</button></div>
+    </section>
+  </div>
+
+  <!-- Delivery report -->
+  <section class="card">
+    <h2>3. Delivery report <span class="muted">(what the broker returned)</span></h2>
+    <div id="report" class="empty">Send an event to see the delivery result for every subscriber.</div>
+  </section>
+
+  <!-- Inboxes -->
+  <section class="card">
+    <h2>4. Subscriber inboxes <span class="muted">live, refreshes every 2 seconds</span></h2>
+    <div id="inboxes" class="inboxes"><div class="empty">No subscribers registered yet.</div></div>
+  </section>
+</main>
+<div class="foot">Distributed Systems &middot; Pub-Sub over REST</div>
+<div id="toast"></div>
+
+<script>
+const MODE_HELP = {
+  unicast: "Unicast: send to exactly ONE subscriber. Pick one recipient.",
+  multicast: "Multicast: send to a SELECTED GROUP. Pick one or more recipients.",
+  broadcast: "Broadcast: send to ALL registered subscribers. No selection needed."
+};
+const PRESETS = {
+  unicast:   { mode: "unicast",   type: "fee_reminder",         msg: "Your fee payment is due tomorrow.",       who: ["student_A"] },
+  multicast: { mode: "multicast", type: "hackathon_update",     msg: "Hackathon registration closes tomorrow.", who: ["student_A", "student_C"] },
+  broadcast: { mode: "broadcast", type: "general_announcement", msg: "Tomorrow is a holiday for everyone.",     who: [] }
+};
+
+let subscribers = [];          // [{subscriber_id, callback_url, online, events}]
+let selected = new Set();
+let mode = "broadcast";
+const seen = {};               // subscriber_id -> Set of event_ids already shown
+let firstLoad = true;
+
+const $ = (id) => document.getElementById(id);
+
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "class") node.className = v;
+    else if (k === "text") node.textContent = v;
+    else node.setAttribute(k, v);
+  }
+  for (const c of [].concat(children)) node.append(c);
+  return node;
+}
+
+function toast(message) {
+  const t = $("toast");
+  t.textContent = message;
+  t.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => t.classList.remove("show"), 3500);
+}
+
+async function api(path, options = {}) {
+  try {
+    const res = await fetch(path, {
+      headers: { "Content-Type": "application/json" }, ...options
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) { /* no body */ }
+    return { ok: res.ok, status: res.status, data };
+  } catch (e) {
+    return { ok: false, status: 0, data: { detail: "Cannot reach the broker." } };
+  }
+}
+
+function errorText(data) {
+  if (!data) return "Unknown error";
+  if (typeof data.detail === "string") return data.detail;
+  if (Array.isArray(data.detail)) {
+    return data.detail.map(d => (d.loc ? d.loc.slice(1).join(".") + ": " : "") + d.msg).join("; ");
+  }
+  return JSON.stringify(data);
+}
+
+/* ---------- Rendering ---------- */
+function renderSubscribers() {
+  $("subCount").textContent = subscribers.length ? subscribers.length + " registered" : "";
+  const box = $("subList");
+  box.replaceChildren();
+  if (!subscribers.length) {
+    box.append(el("div", { class: "empty", text: "No subscribers registered yet." }));
+    return;
+  }
+  for (const s of subscribers) {
+    const rm = el("button", { class: "small danger", text: "Remove" });
+    rm.onclick = () => removeSubscriber(s.subscriber_id);
+    box.append(el("div", { class: "sub-row" }, [
+      el("span", { class: "dot" + (s.online ? " on" : ""), title: s.online ? "online" : "offline / unreachable" }),
+      el("div", { class: "grow" }, [
+        el("div", { class: "id", text: s.subscriber_id }),
+        el("div", { class: "url", text: s.callback_url })
+      ]),
+      rm
+    ]));
+  }
+}
+
+function renderRecipients() {
+  const box = $("recipients");
+  box.replaceChildren();
+  box.classList.toggle("disabled", mode === "broadcast");
+  if (!subscribers.length) {
+    box.append(el("span", { class: "muted", text: "Register subscribers first." }));
+    return;
+  }
+  for (const s of subscribers) {
+    const cb = el("input", { type: "checkbox" });
+    cb.checked = selected.has(s.subscriber_id);
+    cb.onchange = () => {
+      if (mode === "unicast") selected = new Set(cb.checked ? [s.subscriber_id] : []);
+      else if (cb.checked) selected.add(s.subscriber_id);
+      else selected.delete(s.subscriber_id);
+      renderRecipients();
+    };
+    box.append(el("label", {}, [cb, s.subscriber_id]));
+  }
+}
+
+function renderInboxes() {
+  const box = $("inboxes");
+  box.replaceChildren();
+  if (!subscribers.length) {
+    box.append(el("div", { class: "empty", text: "No subscribers registered yet." }));
+    return;
+  }
+  for (const s of subscribers) {
+    seen[s.subscriber_id] = seen[s.subscriber_id] || new Set();
+    const card = el("div", { class: "inbox" + (s.online ? "" : " offline") }, [
+      el("h3", {}, [
+        el("span", { class: "dot" + (s.online ? " on" : "") }),
+        s.subscriber_id,
+        el("span", { class: "state", text: s.online ? "ONLINE" : "OFFLINE" })
+      ])
+    ]);
+    if (!s.online) {
+      card.append(el("div", { class: "empty", text: "Not reachable (stopped or wrong URL)." }));
+    } else if (!s.events.length) {
+      card.append(el("div", { class: "empty", text: "No events received yet." }));
+    }
+    for (const ev of s.events.slice(0, 5)) {
+      const isNew = !firstLoad && !seen[s.subscriber_id].has(ev.event_id);
+      seen[s.subscriber_id].add(ev.event_id);
+      card.append(el("div", { class: "ev" + (isNew ? " new" : "") }, [
+        el("div", { class: "top" }, [
+          el("span", { text: ev.event_type }),
+          el("span", { class: "tag", text: ev.mode })
+        ]),
+        el("div", { class: "msg", text: ev.message }),
+        el("div", { class: "muted", text: "received " + (ev.received_at || "").replace("T", " ").slice(0, 19) })
+      ]));
+    }
+    box.append(card);
+  }
+}
+
+function renderReport(res) {
+  const box = $("report");
+  box.className = "";
+  box.replaceChildren();
+  if (!res.ok) {
+    box.append(el("div", { class: "error-box", text: "Request rejected (HTTP " + res.status + "): " + errorText(res.data) }));
+    return;
+  }
+  const d = res.data;
+  box.append(el("div", { class: "stats" }, [
+    el("div", { class: "stat" }, ["Mode: ", el("b", { text: d.mode })]),
+    el("div", { class: "stat" }, ["Recipients: ", el("b", { text: String(d.total_recipients) })]),
+    el("div", { class: "stat" }, ["Delivered: ", el("b", { text: String(d.successful_deliveries) })]),
+    el("div", { class: "stat" }, ["Failed: ", el("b", { text: String(d.failed_deliveries) })])
+  ]));
+  if (!d.results.length) box.append(el("div", { class: "note", text: d.message }));
+  for (const r of d.results) {
+    const detail = r.status === "success"
+      ? "Delivered (HTTP " + r.http_status + ")"
+      : (r.error || "Failed") + (r.http_status ? " (HTTP " + r.http_status + ")" : "");
+    box.append(el("div", { class: "res " + r.status }, [
+      el("span", { class: "badge", text: r.status }),
+      el("b", { text: r.subscriber_id }),
+      el("span", { text: detail })
+    ]));
+  }
+  if (d.invalid_recipients && d.invalid_recipients.length) {
+    box.append(el("div", { class: "note", text: "Not registered, skipped: " + d.invalid_recipients.join(", ") }));
+  }
+}
+
+/* ---------- Actions ---------- */
+async function refresh() {
+  const res = await api("/dashboard/inbox");
+  const pill = $("brokerPill");
+  pill.textContent = res.ok ? "Broker online" : "Broker unreachable";
+  pill.classList.toggle("off", !res.ok);
+  if (!res.ok) return;
+  subscribers = res.data.inboxes;
+  const ids = new Set(subscribers.map(s => s.subscriber_id));
+  selected = new Set([...selected].filter(id => ids.has(id)));
+  renderSubscribers();
+  renderRecipients();
+  renderInboxes();
+  firstLoad = false;
+}
+
+async function addSubscriber(id, url, quiet) {
+  const res = await api("/subscribe", { method: "POST", body: JSON.stringify({ subscriber_id: id, callback_url: url }) });
+  if (!quiet) toast(res.ok ? "Registered " + id : "Could not register: " + errorText(res.data));
+  return res;
+}
+
+async function removeSubscriber(id) {
+  const res = await api("/unsubscribe/" + encodeURIComponent(id), { method: "DELETE" });
+  toast(res.ok ? "Removed " + id : "Could not remove: " + errorText(res.data));
+  refresh();
+}
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll("#modes button").forEach(b => b.classList.toggle("active", b.dataset.mode === m));
+  $("modeHelp").textContent = MODE_HELP[m];
+  if (m === "unicast" && selected.size > 1) selected = new Set([[...selected][0]]);
+  renderRecipients();
+}
+
+async function sendEvent() {
+  const body = { event_type: $("evType").value.trim(), message: $("evMsg").value.trim(), mode };
+  if (mode !== "broadcast") body.recipients = [...selected];
+  const res = await api("/publish", { method: "POST", body: JSON.stringify(body) });
+  renderReport(res);
+  refresh();
+}
+
+$("addBtn").onclick = async () => {
+  const id = $("newId").value.trim(), url = $("newUrl").value.trim();
+  if (!id || !url) { toast("Enter both an ID and a callback URL."); return; }
+  const res = await addSubscriber(id, url);
+  if (res.ok) { $("newId").value = ""; $("newUrl").value = ""; }
+  refresh();
+};
+$("quickBtn").onclick = async () => {
+  let added = 0;
+  for (const [id, port] of [["student_A", 5001], ["student_B", 5002], ["student_C", 5003]]) {
+    const res = await addSubscriber(id, "http://localhost:" + port + "/notify", true);
+    if (res.ok) added++;
+  }
+  toast(added ? "Registered " + added + " subscriber(s)." : "A, B and C were already registered.");
+  refresh();
+};
+document.querySelectorAll("[data-preset]").forEach(b => b.onclick = () => {
+  const p = PRESETS[b.dataset.preset];
+  $("evType").value = p.type;
+  $("evMsg").value = p.msg;
+  const ids = new Set(subscribers.map(s => s.subscriber_id));
+  selected = new Set(p.who.filter(id => ids.has(id)));
+  setMode(p.mode);
+});
+document.querySelectorAll("#modes button").forEach(b => b.onclick = () => setMode(b.dataset.mode));
+$("sendBtn").onclick = sendEvent;
+
+setMode("broadcast");
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>

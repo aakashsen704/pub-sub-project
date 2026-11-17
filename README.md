@@ -99,6 +99,22 @@ If PowerShell refuses to run the activation script, run
 
 ## 4. Running the system
 
+### Option 1 – Docker Compose
+
+With Docker Desktop running, open a terminal in the project folder and start the broker and three subscribers:
+
+```bash
+docker compose up --build
+```
+
+The subscribers register automatically. Open the **Web dashboard** at **http://localhost:8000/dashboard** or **Swagger API docs** at **http://localhost:8000/docs**. Stop the containers with:
+
+```bash
+docker compose down
+```
+
+### Option 2 – Run locally
+
 Open **four terminals**. In **each** one, go to the project folder and activate the environment:
 
 | OS | Command |
@@ -129,10 +145,14 @@ python -m subscribers.subscriber --id student_B --port 5002
 python -m subscribers.subscriber --id student_C --port 5003
 ```
 
-Now open the Swagger UI at **http://localhost:8000/docs** to send requests.
+After all four processes are running, choose either interface:
 
-> **Registration is manual.** Starting a subscriber does not register it. Call `POST /subscribe`
-> for each one (step 1 of the demo below). If you restart the broker, register the subscribers again.
+- **Web dashboard:** http://localhost:8000/dashboard
+- **Swagger API docs:** http://localhost:8000/docs
+
+![Pub-Sub Dashboard main UI](docs/dashboard_ui_main.png)
+
+> **Register subscribers once.** The commands above do not register them automatically. In the dashboard, click **Quick add A, B, C (terminal setup)**, or register each subscriber through Swagger as shown in step 1 below. If you restart the broker, register them again.
 
 <details>
 <summary>Optional settings</summary>
@@ -146,8 +166,13 @@ Now open the Swagger UI at **http://localhost:8000/docs** to send requests.
 
 ## 5. Demo walkthrough
 
-Use the Swagger UI (`http://localhost:8000/docs`), Postman, or the curl commands shown. Watch the three
-subscriber terminals after each publish.
+### Option A – Web dashboard
+
+Open **http://localhost:8000/dashboard** and click **Quick add A, B, C (terminal setup)** after starting the four processes in section 4. Choose Unicast, Multicast, or Broadcast, then click **Send event**. The dashboard shows the delivery report; the subscriber terminals show which subscribers received the event.
+
+### Option B – Swagger UI or cURL
+
+Use Swagger at **http://localhost:8000/docs**, Postman, or the curl commands shown below. Watch the three subscriber terminals after each publish.
 
 **Step 1 – Register the three subscribers** (`POST /subscribe`, once per body)
 ```json

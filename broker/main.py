@@ -11,6 +11,8 @@ import logging
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
+from .dashboard import create_dashboard_router
+
 from .models import (
     PublishRequest,
     PublishResponse,
@@ -31,6 +33,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger("broker")
 
+class _HideDashboardPolling(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return "GET /dashboard/inbox" not in record.getMessage()
+
+
+logging.getLogger("uvicorn.access").addFilter(_HideDashboardPolling())
+
 app = FastAPI(
     title="Simple Pub-Sub Broker",
     description=(
@@ -45,6 +54,7 @@ app = FastAPI(
 registry = SubscriberRegistry()
 
 
+app.include_router(create_dashboard_router(registry))
 # --------------------------------------------------------------------------- #
 # Error handlers: turn domain errors into clean JSON responses
 # --------------------------------------------------------------------------- #

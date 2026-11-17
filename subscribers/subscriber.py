@@ -20,10 +20,17 @@ import httpx
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
-
+import logging
+from collections import deque
+from datetime import datetime, timezone
 BANNER_WIDTH = 33
 
+class _HideEventsPolling(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return "GET /events" not in record.getMessage()
 
+
+logging.getLogger("uvicorn.access").addFilter(_HideEventsPolling())
 class Event(BaseModel):
     """Payload sent by the broker (see broker/publisher.py)."""
 
@@ -64,7 +71,7 @@ def create_app(
     register_url - if given, register with the broker at startup
                    (e.g. http://localhost:8000); otherwise register manually.
     """
-
+    received: deque = deque(maxlen=100)
     @asynccontextmanager
     async def lifespan(_: FastAPI):
         if register_url:
@@ -85,6 +92,10 @@ def create_app(
     async def notify(event: Event) -> dict:
         """Callback endpoint called by the broker."""
         print_notification(subscriber_id, event)
+        received.appendleft({
+            **event.model_dump(),
+            "received_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        })        
         if delay > 0:
             await asyncio.sleep(delay)
         return {
@@ -92,7 +103,10 @@ def create_app(
             "subscriber_id": subscriber_id,
             "event_type": event.event_type,
         }
-
+    @app.get("/events")
+    async def events() -> dict:
+        """Events this subscriber has received (newest first)."""
+        return {"subscriber_id": subscriber_id, "events": list(received)}
     @app.get("/health")
     async def health() -> dict:
         return {"status": "ok", "subscriber_id": subscriber_id}

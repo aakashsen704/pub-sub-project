@@ -1,0 +1,246 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 680" width="100%" height="100%" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <!-- Arrowhead markers -->
+    <marker id="arrow-blue" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#16a34a"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#9333ea"/>
+    </marker>
+    <marker id="arrow-gray" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#64748b"/>
+    </marker>
+
+    <!-- Filters for drop shadows -->
+    <filter id="card-shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1060" height="680" fill="#f8fafc" rx="16"/>
+  <rect x="1" y="1" width="1058" height="678" fill="none" stroke="#e2e8f0" stroke-width="2" rx="15"/>
+
+  <!-- Header Section -->
+  <text x="530" y="42" text-anchor="middle" font-size="22" font-weight="800" fill="#0f172a" letter-spacing="-0.02em">Distributed Systems Publish–Subscribe Architecture</text>
+  <text x="530" y="66" text-anchor="middle" font-size="13" font-weight="500" fill="#64748b">Central Broker Architecture with Real-Time Web Dashboard, REST Ingress &amp; Concurrent Callbacks</text>
+
+  <!-- ======================================================== -->
+  <!-- 1. LEFT COLUMN: PUBLISHERS & CLIENT INTERFACES          -->
+  <!-- ======================================================== -->
+  <g id="clients-group">
+    <!-- Outer boundary box -->
+    <rect x="30" y="100" width="220" height="470" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#card-shadow)"/>
+    <rect x="30" y="100" width="220" height="38" rx="14" fill="#eff6ff"/>
+    <text x="140" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">Clients &amp; Publishers</text>
+
+    <!-- Web Dashboard Card -->
+    <rect x="45" y="155" width="190" height="150" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+    <rect x="55" y="167" width="28" height="18" rx="4" fill="#22c55e"/>
+    <text x="69" y="180" text-anchor="middle" font-size="10" font-weight="800" fill="#ffffff">UI</text>
+    <text x="90" y="181" font-size="13" font-weight="700" fill="#166534">Web Dashboard</text>
+    <text x="55" y="202" font-size="11" font-weight="600" fill="#15803d">http://localhost:8000/dashboard</text>
+    <line x1="55" y1="212" x2="225" y2="212" stroke="#bbf7d0" stroke-width="1"/>
+    <text x="55" y="230" font-size="11" fill="#334155">&#x2022; 1-Click Preset Demos</text>
+    <text x="55" y="248" font-size="11" fill="#334155">&#x2022; Live Inboxes &amp; Status</text>
+    <text x="55" y="266" font-size="11" fill="#334155">&#x2022; Mode Selector &amp; Filters</text>
+    <text x="55" y="286" font-size="10" font-weight="700" fill="#16a34a">Polls /dashboard/inbox (2s)</text>
+
+    <!-- REST API Clients Card -->
+    <rect x="45" y="325" width="190" height="135" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <rect x="55" y="337" width="38" height="18" rx="4" fill="#3b82f6"/>
+    <text x="74" y="350" text-anchor="middle" font-size="10" font-weight="800" fill="#ffffff">REST</text>
+    <text x="100" y="351" font-size="13" font-weight="700" fill="#1e40af">API Clients</text>
+    <line x1="55" y1="365" x2="225" y2="365" stroke="#bfdbfe" stroke-width="1"/>
+    <text x="55" y="383" font-size="11" fill="#334155">&#x2022; Swagger UI (/docs)</text>
+    <text x="55" y="401" font-size="11" fill="#334155">&#x2022; cURL Scripts</text>
+    <text x="55" y="419" font-size="11" fill="#334155">&#x2022; Postman / Automated Tests</text>
+    <text x="55" y="443" font-size="10" font-weight="600" fill="#2563eb">HTTP POST /publish</text>
+
+    <!-- Subscriber Admin Callout -->
+    <rect x="45" y="475" width="190" height="75" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="55" y="495" font-size="11" font-weight="700" fill="#475569">Registration Admin</text>
+    <text x="55" y="514" font-size="10" fill="#64748b">POST /subscribe</text>
+    <text x="55" y="530" font-size="10" fill="#64748b">DELETE /unsubscribe/{id}</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 2. CENTER COLUMN: CENTRAL BROKER SERVICE                 -->
+  <!-- ======================================================== -->
+  <g id="broker-group">
+    <!-- Outer boundary box -->
+    <rect x="330" y="95" width="380" height="480" rx="16" fill="#ffffff" stroke="#0f172a" stroke-width="2" filter="url(#card-shadow)"/>
+    
+    <!-- Broker Title Header -->
+    <path d="M 330 111 Q 330 95 346 95 L 694 95 Q 710 95 710 111 L 710 142 L 330 142 Z" fill="#0f172a"/>
+    <text x="520" y="122" text-anchor="middle" font-size="16" font-weight="800" fill="#ffffff">CENTRAL BROKER</text>
+    <text x="520" y="137" text-anchor="middle" font-size="11" font-weight="500" fill="#94a3b8">FastAPI Microservice (Port 8000)</text>
+
+    <!-- Module 1: Ingress REST API Endpoints -->
+    <rect x="345" y="152" width="350" height="90" rx="10" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.2"/>
+    <text x="360" y="172" font-size="12" font-weight="700" fill="#334155">REST Ingress &amp; Dashboard Controller (main.py / dashboard.py)</text>
+    <rect x="355" y="182" width="165" height="24" rx="4" fill="#ffffff" stroke="#94a3b8"/>
+    <text x="362" y="198" font-size="10" font-weight="700" fill="#2563eb">POST /publish</text>
+    <text x="445" y="198" font-size="10" fill="#64748b">(Validate &amp; Disptach)</text>
+
+    <rect x="525" y="182" width="160" height="24" rx="4" fill="#ffffff" stroke="#94a3b8"/>
+    <text x="532" y="198" font-size="10" font-weight="700" fill="#16a34a">GET /dashboard</text>
+    <text x="625" y="198" font-size="10" fill="#64748b">(Web Page)</text>
+
+    <rect x="355" y="211" width="165" height="24" rx="4" fill="#ffffff" stroke="#94a3b8"/>
+    <text x="362" y="227" font-size="10" font-weight="700" fill="#475569">POST /subscribe</text>
+    <text x="455" y="227" font-size="10" fill="#64748b">(Add)</text>
+
+    <rect x="525" y="211" width="160" height="24" rx="4" fill="#ffffff" stroke="#94a3b8"/>
+    <text x="532" y="227" font-size="10" font-weight="700" fill="#9333ea">GET /dashboard/inbox</text>
+    <text x="653" y="227" font-size="10" fill="#64748b">(Proxy)</text>
+
+    <!-- Module 2: In-Memory Registry -->
+    <rect x="345" y="250" width="350" height="78" rx="10" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
+    <text x="520" y="271" text-anchor="middle" font-size="12" font-weight="800" fill="#854d0e">Thread-Safe Subscriber Registry (registry.py)</text>
+    <text x="520" y="290" text-anchor="middle" font-size="11" font-family="Courier, monospace" font-weight="600" fill="#713f12">In-Memory Dict: { subscriber_id : callback_url }</text>
+    <text x="520" y="308" text-anchor="middle" font-size="10" fill="#a16207">Protected with threading.Lock &bull; Lookup &bull; Validation &bull; Deregistration</text>
+
+    <!-- Module 3: Router & Concurrent Dispatcher -->
+    <rect x="345" y="336" width="350" height="225" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="520" y="357" text-anchor="middle" font-size="13" font-weight="800" fill="#1e40af">Asynchronous Delivery Engine (publisher.py)</text>
+    
+    <!-- Modes Sub-box -->
+    <rect x="355" y="367" width="330" height="98" rx="8" fill="#ffffff" stroke="#bfdbfe"/>
+    <text x="365" y="385" font-size="11" font-weight="700" fill="#1d4ed8">Routing Semantics:</text>
+    
+    <text x="365" y="403" font-size="11" font-weight="700" fill="#0f172a">&#x2022; Unicast:</text>
+    <text x="430" y="403" font-size="11" fill="#334155">Direct point-to-point (exactly 1 target recipient)</text>
+
+    <text x="365" y="423" font-size="11" font-weight="700" fill="#0f172a">&#x2022; Multicast:</text>
+    <text x="438" y="423" font-size="11" fill="#334155">Selective dispatch (chosen subset of subscribers)</text>
+
+    <text x="365" y="443" font-size="11" font-weight="700" fill="#0f172a">&#x2022; Broadcast:</text>
+    <text x="440" y="443" font-size="11" fill="#334155">Global fan-out (100% of all registered subscribers)</text>
+
+    <!-- Dispatch Properties -->
+    <rect x="355" y="472" width="330" height="78" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="365" y="490" font-size="11" font-weight="700" fill="#0f172a">Fault-Tolerant Execution:</text>
+    <text x="365" y="508" font-size="10.5" fill="#475569">&#x2714; Concurrent I/O via <tspan font-family="Courier, monospace" font-weight="700">asyncio.gather</tspan> over HTTPX client</text>
+    <text x="365" y="524" font-size="10.5" fill="#475569">&#x2714; Non-blocking: Slow/dead subscriber does not block peers</text>
+    <text x="365" y="540" font-size="10.5" fill="#475569">&#x2714; Configurable Timeout (5s default, 2s connect cap)</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 3. RIGHT COLUMN: SUBSCRIBER MICROSERVICES                -->
+  <!-- ======================================================== -->
+  <g id="subscribers-group">
+    <!-- Outer boundary box -->
+    <rect x="790" y="100" width="240" height="470" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#card-shadow)"/>
+    <rect x="790" y="100" width="240" height="38" rx="14" fill="#f0fdf4"/>
+    <text x="910" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#166534">Autonomous Subscribers</text>
+
+    <!-- Subscriber A -->
+    <rect x="805" y="150" width="210" height="120" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+    <circle cx="823" cy="168" r="6" fill="#16a34a"/>
+    <text x="837" y="172" font-size="13" font-weight="800" fill="#14532d">student_A</text>
+    <text x="965" y="172" font-size="11" font-weight="700" fill="#16a34a">Port 5001</text>
+    <line x1="815" y1="184" x2="1005" y2="184" stroke="#bbf7d0" stroke-width="1"/>
+    <text x="815" y="200" font-size="10.5" font-weight="700" fill="#15803d">&#x27A4; POST /notify</text>
+    <text x="920" y="200" font-size="10" fill="#475569">(Prints banner)</text>
+    <text x="815" y="217" font-size="10.5" font-weight="700" fill="#7e22ce">&#x27A4; GET /events</text>
+    <text x="920" y="217" font-size="10" fill="#475569">(Deque max=100)</text>
+    <text x="815" y="234" font-size="10.5" font-weight="700" fill="#475569">&#x27A4; GET /health</text>
+    <text x="920" y="234" font-size="10" fill="#475569">(200 OK)</text>
+    <rect x="815" y="244" width="190" height="18" rx="4" fill="#dcfce7"/>
+    <text x="910" y="257" text-anchor="middle" font-size="9.5" font-weight="600" fill="#166534">http://localhost:5001/notify</text>
+
+    <!-- Subscriber B -->
+    <rect x="805" y="285" width="210" height="120" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+    <circle cx="823" cy="303" r="6" fill="#16a34a"/>
+    <text x="837" y="307" font-size="13" font-weight="800" fill="#14532d">student_B</text>
+    <text x="965" y="307" font-size="11" font-weight="700" fill="#16a34a">Port 5002</text>
+    <line x1="815" y1="319" x2="1005" y2="319" stroke="#bbf7d0" stroke-width="1"/>
+    <text x="815" y="335" font-size="10.5" font-weight="700" fill="#15803d">&#x27A4; POST /notify</text>
+    <text x="920" y="335" font-size="10" fill="#475569">(Prints banner)</text>
+    <text x="815" y="352" font-size="10.5" font-weight="700" fill="#7e22ce">&#x27A4; GET /events</text>
+    <text x="920" y="352" font-size="10" fill="#475569">(Deque max=100)</text>
+    <text x="815" y="369" font-size="10.5" font-weight="700" fill="#475569">&#x27A4; GET /health</text>
+    <text x="920" y="369" font-size="10" fill="#475569">(200 OK)</text>
+    <rect x="815" y="379" width="190" height="18" rx="4" fill="#dcfce7"/>
+    <text x="910" y="392" text-anchor="middle" font-size="9.5" font-weight="600" fill="#166534">http://localhost:5002/notify</text>
+
+    <!-- Subscriber C -->
+    <rect x="805" y="420" width="210" height="120" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+    <circle cx="823" cy="438" r="6" fill="#16a34a"/>
+    <text x="837" y="442" font-size="13" font-weight="800" fill="#14532d">student_C</text>
+    <text x="965" y="442" font-size="11" font-weight="700" fill="#16a34a">Port 5003</text>
+    <line x1="815" y1="454" x2="1005" y2="454" stroke="#bbf7d0" stroke-width="1"/>
+    <text x="815" y="470" font-size="10.5" font-weight="700" fill="#15803d">&#x27A4; POST /notify</text>
+    <text x="920" y="470" font-size="10" fill="#475569">(Prints banner)</text>
+    <text x="815" y="487" font-size="10.5" font-weight="700" fill="#7e22ce">&#x27A4; GET /events</text>
+    <text x="920" y="487" font-size="10" fill="#475569">(Deque max=100)</text>
+    <text x="815" y="504" font-size="10.5" font-weight="700" fill="#475569">&#x27A4; GET /health</text>
+    <text x="920" y="504" font-size="10" fill="#475569">(200 OK)</text>
+    <rect x="815" y="514" width="190" height="18" rx="4" fill="#dcfce7"/>
+    <text x="910" y="527" text-anchor="middle" font-size="9.5" font-weight="600" fill="#166534">http://localhost:5003/notify</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 4. INTERACTION ARROWS & LABELS                           -->
+  <!-- ======================================================== -->
+  <!-- A) Publication Arrow: REST client to Broker -->
+  <path d="M 235 390 L 328 390" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <rect x="240" y="372" width="85" height="16" rx="4" fill="#dbeafe"/>
+  <text x="282" y="384" text-anchor="middle" font-size="9" font-weight="700" fill="#1e40af">POST /publish</text>
+
+  <!-- B) Dashboard Actions Arrow: Dashboard to Broker -->
+  <path d="M 235 230 L 328 230" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <rect x="240" y="214" width="85" height="16" rx="4" fill="#dbeafe"/>
+  <text x="282" y="226" text-anchor="middle" font-size="9" font-weight="700" fill="#1e40af">Trigger Event</text>
+
+  <!-- C) Callback Dispatch Arrows: Broker to Subscribers -->
+  <!-- To Subscriber A -->
+  <path d="M 695 400 C 740 400, 740 210, 792 210" fill="none" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <!-- To Subscriber B -->
+  <path d="M 695 440 C 740 440, 740 345, 792 345" fill="none" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <!-- To Subscriber C -->
+  <path d="M 695 480 C 740 480, 740 480, 792 480" fill="none" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+
+  <!-- Badge on callback arrows -->
+  <rect x="705" y="325" width="84" height="24" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+  <text x="747" y="341" text-anchor="middle" font-size="10" font-weight="800" fill="#166534">POST /notify</text>
+
+  <!-- D) Registration Path (Dashed) -->
+  <path d="M 805 160 C 750 160, 750 220, 695 220" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrow-gray)"/>
+  <rect x="710" y="180" width="75" height="16" rx="4" fill="#f1f5f9"/>
+  <text x="747" y="192" text-anchor="middle" font-size="8.5" font-weight="700" fill="#475569">POST /subscribe</text>
+
+  <!-- E) Dashboard Live Inbox Polling Path (Purple line) -->
+  <path d="M 695 235 C 730 235, 730 225, 792 225" fill="none" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-purple)"/>
+  <path d="M 695 235 C 730 235, 730 360, 792 360" fill="none" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-purple)"/>
+  <path d="M 695 235 C 730 235, 730 495, 792 495" fill="none" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-purple)"/>
+  <rect x="702" y="260" width="88" height="16" rx="4" fill="#f3e8ff"/>
+  <text x="746" y="272" text-anchor="middle" font-size="8.5" font-weight="700" fill="#7e22ce">GET /events poll</text>
+
+  <!-- ======================================================== -->
+  <!-- 5. LEGEND & PROTOCOL SPECIFICATIONS                     -->
+  <!-- ======================================================== -->
+  <g id="legend" transform="translate(45, 595)">
+    <rect x="0" y="0" width="970" height="60" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <text x="20" y="24" font-size="11" font-weight="800" fill="#0f172a">COMMUNICATION LEGEND:</text>
+    
+    <!-- Item 1: Publishing -->
+    <line x1="20" y1="42" x2="55" y2="42" stroke="#2563eb" stroke-width="3"/>
+    <text x="65" y="45" font-size="11" font-weight="600" fill="#1e40af">1. REST Publication</text>
+    <text x="175" y="45" font-size="11" fill="#64748b">(Synchronous HTTP POST to Broker)</text>
+
+    <!-- Item 2: Callback Delivery -->
+    <line x1="395" y1="42" x2="430" y2="42" stroke="#16a34a" stroke-width="3"/>
+    <text x="440" y="45" font-size="11" font-weight="600" fill="#15803d">2. Async Callback Dispatch</text>
+    <text x="590" y="45" font-size="11" fill="#64748b">(Concurrent HTTP POST /notify)</text>
+
+    <!-- Item 3: UI Polling -->
+    <line x1="775" y1="42" x2="810" y2="42" stroke="#9333ea" stroke-width="2" stroke-dasharray="4 3"/>
+    <text x="820" y="45" font-size="11" font-weight="600" fill="#7e22ce">3. UI Inbox Proxy Polling</text>
+    <text x="955" y="45" font-size="11" fill="#64748b">(2s cycle)</text>
+  </g>
+</svg>
